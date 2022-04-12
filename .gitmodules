@@ -4,3 +4,6 @@
 [submodule "src/pack/scikit-multiflow"]
 	path = src/pack/scikit-multiflow
 	url = https://github.com/Elocinacademia/scikit-multiflow.git
+[submodule "src/pack/river"]
+	path = src/pack/river
+	url = https://github.com/Elocinacademia/river.git

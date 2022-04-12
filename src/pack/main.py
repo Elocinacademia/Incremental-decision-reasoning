@@ -1,3 +1,13 @@
+from pprint import pprint
+from river import datasets
+
+
+from river import compose
+from river import linear_model
+from river import metrics
+from river import preprocessing
+
+
 import csv
 import numpy as np
 from sklearn.model_selection import KFold
@@ -170,10 +180,23 @@ data_list = trans_data(data)
 random.seed(1)
 random.shuffle(data_list)
 # iteration_number = len(data_list) 
-iteration_number = len(data_list)
+iteration_number = 20
 accuracy_record = []
 
-neural_network_analysis = 1
+
+
+
+
+
+
+
+'''
+neural_network_analysis:
+    =1: neural network embedded in scikit-multiflow
+    =2: neural network embedded in river
+'''
+
+neural_network_analysis = 2
 
 for i in range(0, iteration_number):
     X_train, X_test, y_train, y_test, test_len = train_test_split(data_list, i)
@@ -213,12 +236,36 @@ for i in range(0, iteration_number):
         accuracy_record.append(this_neural_accuracy)
         # import pdb; pdb.set_trace()
         #End of neural networks
+    elif neural_network_analysis == 2:
+        dataset = datasets.Phishing()
+        # for x, y in dataset:
+        #     pprint(x)
+        #     print(y)
+        #     break
+        model = compose.Pipeline(preprocessing.StandardScaler(),
+            linear_model.LogisticRegression()
+            )
+        metric = metrics.Accuracy()
+        
+        for x, y in dataset:
+            import pdb; pdb.set_trace()
+            y_pred = model.predict_one(x)      # make a prediction
+            metric = metric.update(y, y_pred)  # update the metric
+            model = model.learn_one(x, y)      # make the model learn
+        # metric
+        # Accuracy: 89.20%
+        
+
+
+
+
+
 
 
     else:
         #Normal method to train the model
         size = len(new_X_train) - test_len
-        evaluator = EvaluatePrequential(n_wait=1,show_plot=False, pretrain_size=size,
+        evaluator = EvaluatePrequential(n_wait=1,show_plot=True, pretrain_size=size,
             max_samples=len(new_X_train) + 1,
             metrics=['accuracy', 'kappa','precision','recall'])
         model_choose = aht
@@ -227,9 +274,7 @@ for i in range(0, iteration_number):
         this_user_accuracy = evaluator._data_buffer.get_data(metric_id=skmultiflow.utils.constants.ACCURACY, 
             data_id=skmultiflow.utils.constants.MEAN)[0]
         accuracy_record.append(this_user_accuracy)
-        print("Method name : ", model_choose)
-        # import pdb; pdb.set_trace()
-
+        import pdb; pdb.set_trace()
 print("Accuracy for this method:", sum(accuracy_record)/len(accuracy_record))
 import pdb; pdb.set_trace()
 
