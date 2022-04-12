@@ -11,7 +11,7 @@ from skmultiflow.data import DataStream
 from skmultiflow.trees import HoeffdingTreeClassifier
 from skmultiflow.trees import HoeffdingAdaptiveTreeClassifier
 from skmultiflow.evaluation import EvaluatePrequential
-
+from skmultiflow.neural_networks import PerceptronMask
 
 
 
@@ -170,8 +170,11 @@ data_list = trans_data(data)
 random.seed(1)
 random.shuffle(data_list)
 # iteration_number = len(data_list) 
-iteration_number = 50
+iteration_number = 20
 accuracy_record = []
+
+neural_network_analysis = 1
+
 for i in range(0, iteration_number):
     X_train, X_test, y_train, y_test, test_len = train_test_split(data_list, i)
     # clf = svm.SVC(kernel='linear', C=1).fit(X_train, y_train)
@@ -182,22 +185,50 @@ for i in range(0, iteration_number):
     ht = HoeffdingTreeClassifier()
     aht = HoeffdingAdaptiveTreeClassifier()
     nb = NaiveBayes()
-    # evaluator = EvaluatePrequential(n_wait=10,show_plot=True, pretrain_size=255800,
-    #     max_samples=255924,
-    #     output_file='results.csv',
-    #     metrics=['accuracy', 'kappa'])
-    size = len(new_X_train) - test_len
-    evaluator = EvaluatePrequential(n_wait=1,show_plot=False, pretrain_size=size,
-        max_samples=len(new_X_train) + 1,
-        metrics=['accuracy', 'kappa','precision','recall'])
-    # import pdb; pdb.set_trace()
-    model_choose = aht
-    evaluator.evaluate(stream=stream, model= model_choose)
-    import skmultiflow
-    this_user_accuracy = evaluator._data_buffer.get_data(metric_id=skmultiflow.utils.constants.ACCURACY, 
-        data_id=skmultiflow.utils.constants.MEAN)[0]
-    accuracy_record.append(this_user_accuracy)
-Print("Accuracy for this method:", sum(accuracy_record)/len(accuracy_record))
+
+
+    if neural_network_analysis == 1:
+    #new method proposed:
+    
+        perceptron = PerceptronMask()
+        neural_stream = DataStream(X_train,y_train, cat_features=None, name=None, allow_nan=False)
+        n_samples = 0
+        correct_cnt = 0
+        perceptron.fit(X_train, y_train, classes=stream.target_values)
+        user_stream = DataStream(X_test,y_test, cat_features=None, name=None, allow_nan=False)
+        
+        while n_samples < len(X_test) and user_stream.has_more_samples():
+            X, y = user_stream.next_sample()
+            my_pred = perceptron.predict(X)
+            if y[0] == my_pred[0]:
+                correct_cnt += 1
+            perceptron.partial_fit(X, y, classes=stream.target_values)
+            n_samples += 1
+
+         # Display the results
+        print('Perceptron Mask usage example')
+        print('{} samples analyzed'.format(n_samples))
+        print("Perceptron's performance: {}".format(correct_cnt / n_samples))
+        this_neural_accuracy = correct_cnt / n_samples
+        accuracy_record.append(this_neural_accuracy)
+        # import pdb; pdb.set_trace()
+        #End of neural networks
+
+
+    else:
+        #Normal method to train the model
+        size = len(new_X_train) - test_len
+        evaluator = EvaluatePrequential(n_wait=1,show_plot=True, pretrain_size=size,
+            max_samples=len(new_X_train) + 1,
+            metrics=['accuracy', 'kappa','precision','recall'])
+        model_choose = aht
+        evaluator.evaluate(stream=stream, model= model_choose)
+        import skmultiflow
+        this_user_accuracy = evaluator._data_buffer.get_data(metric_id=skmultiflow.utils.constants.ACCURACY, 
+            data_id=skmultiflow.utils.constants.MEAN)[0]
+        accuracy_record.append(this_user_accuracy)
+        import pdb; pdb.set_trace()
+print("Accuracy for this method:", sum(accuracy_record)/len(accuracy_record))
 import pdb; pdb.set_trace()
 
 
