@@ -188,15 +188,13 @@ accuracy_record = []
 
 
 
-
-
 '''
 neural_network_analysis:
     =1: neural network embedded in scikit-multiflow
     =2: neural network embedded in river
 '''
 
-neural_network_analysis = 2
+neural_network_analysis = 1
 
 for i in range(0, iteration_number):
     X_train, X_test, y_train, y_test, test_len = train_test_split(data_list, i)
@@ -248,7 +246,7 @@ for i in range(0, iteration_number):
         metric = metrics.Accuracy()
         
         for x, y in dataset:
-            import pdb; pdb.set_trace()
+            # import pdb; pdb.set_trace()
             y_pred = model.predict_one(x)      # make a prediction
             metric = metric.update(y, y_pred)  # update the metric
             model = model.learn_one(x, y)      # make the model learn
@@ -274,9 +272,9 @@ for i in range(0, iteration_number):
         this_user_accuracy = evaluator._data_buffer.get_data(metric_id=skmultiflow.utils.constants.ACCURACY, 
             data_id=skmultiflow.utils.constants.MEAN)[0]
         accuracy_record.append(this_user_accuracy)
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 print("Accuracy for this method:", sum(accuracy_record)/len(accuracy_record))
-import pdb; pdb.set_trace()
+# import pdb; pdb.set_trace()
 
 
 
