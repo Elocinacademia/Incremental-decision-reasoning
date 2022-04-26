@@ -164,7 +164,7 @@ def data_stream_generator(X_train, X_test, y_train, y_test):
 
 
 
-data = "../../Data/final_data.csv"  #上上级目录中找到data file
+data = "../../Data/final_data.csv"  #find data file
 data_list = trans_data(data)
 
 random.seed(1)
