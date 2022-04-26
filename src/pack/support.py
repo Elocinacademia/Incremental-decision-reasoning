@@ -166,7 +166,6 @@ def data_stream_generator(X_train, X_test, y_train, y_test):
 
 data = "../../Data/final_data.csv"  #上上级目录中找到data file
 data_list = trans_data(data)
-
 random.seed(1)
 random.shuffle(data_list)
 # iteration_number = len(data_list) 
@@ -231,7 +230,7 @@ for i in range(0, iteration_number):
         # import pdb; pdb.set_trace()
 
 print("Accuracy for this method:", sum(accuracy_record)/len(accuracy_record))
-import pdb; pdb.set_trace()
+#import pdb; pdb.set_trace()
 
 
 
